@@ -273,6 +273,53 @@ restoration failure, and no capture is automatically repeated.
 
 ## Full-memory capture
 
+### Find the interesting region without loading raw data into context (0.6.0)
+
+Successful capture receipts now recommend `waveform.overview`. It reads the saved
+artifact on the server, checks its integrity, and returns **64 min/max intervals**
+by default, regardless of whether the capture contains 1,200 or 24 million samples.
+Every selected sample contributes; even a one-sample spike remains represented.
+
+```text
+advanced_read(operation="waveform.overview", arguments={"artifact_id":"<capture ID>"})
+advanced_read(operation="waveform.image", arguments={"artifact_id":"<capture ID>"})
+```
+
+The second call is optional: it returns a labeled **1000 × 600 PNG** as native MCP
+image content, with compact metadata. It draws the same interval ranges and marks
+the extrema locations. It is a host-rendered envelope of the saved capture, not
+a live screen image. No image is attached to the default overview, and no base64
+text or full raw sample arrays are returned. Clients without image support can
+use the numeric overview alone.
+
+Both operations accept `start` (absolute zero-based sample index), `count`
+(source samples to summarize; omitted means all remaining samples), and `bins`
+(1–256, default 64). The range is clipped at the capture end and short windows
+use fewer bins. `point_count` and `end_exclusive` describe the actual range.
+The envelope is a compact table whose `columns` are:
+
+```text
+[start, end_exclusive, min_index, min_amplitude, max_index, max_amplitude]
+```
+
+Indices are absolute, amplitudes use the saved channel unit, and ties retain the
+first occurrence. Each bin covers `[start, end_exclusive)` exactly once. To zoom a
+bin, pass its start and `count=end_exclusive-start` to either operation. The
+`extrema` field gives exact global minimum/maximum sample locations and times in
+the selected window; `sample_actions` provides ready-to-call exact reads around
+those points (up to 65 samples). Those extrema are navigation aids, not automated
+anomaly judgments. `image_action` provides the optional image request.
+
+An envelope preserves the range, **not every transition, occurrence of an extremum,
+or pulse width**. Confirm timing and shape using `waveform.samples` (at most 2,000
+exact samples per call), or zoom further. No waveform operation here touches the
+instrument; no new acquisition is needed. Raw data remains on disk under the
+existing eight-capture/seven-day retention. Images are regenerated on request and
+are unavailable once the source expires. Version 0.5.0 artifacts remain rejected
+by the metadata integrity checks introduced in 0.5.1; no automatic migration occurs.
+
+### Capture the retained acquisition
+
 Capture a retained, stopped acquisition without restarting it:
 
 ```text

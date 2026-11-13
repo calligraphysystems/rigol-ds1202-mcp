@@ -1,5 +1,52 @@
 # Validation record and reproducibility
 
+## Version 0.6.0 — November 13, 2026
+
+293 automated tests passed from source, a clean installed wheel, and the deployed
+Linux host. All 16 runtime Python files matched the tested source. Tests cover
+single-sample spikes, interval boundaries, calibration, absolute indices, ties,
+short/zoomed windows, 24M-point response limits, corrupt artifacts and native MCP
+image transport. The public source tree retains those same runtime files/tests.
+
+Physical checks used a DS1202Z-E, firmware 00.06.03.SP2, with an ESP32 TinyPICO
+fixture. CH1 was connected to GPIO22 (clock), CH2 to GPIO21 (data), configured for
+10x probes. The last documented ground arrangement used one ground lead on CH2;
+current grounding was not independently confirmed. Source setup: MAIN/NORMAL,
+CH1-only 24M memory, 2 ms/div, 1 V/div, offset -1.5 V, 1.5 V positive-edge trigger.
+The full saved record was 96 ms at 250 MSa/s. Scope setup and running state were
+restored after tests, and the bounded fixture released its pins.
+
+Two transfers of a stopped 24M record matched byte-for-byte. Independent NumPy
+calculations on archived raw samples verified every bin and calibration in six
+overview windows. All **34 saved-data checks** passed, including image delivery,
+metadata, exact extrema follow-ups, transfer-boundary sample pages, short final
+pages, reconnect and unchanged instrument state during saved-data reads. The
+record contained 72 rising edges, with median high pulse duration about 50.5 us.
+Simple first-sample-per-bin selection missed highs in 11 of 14 intervals containing
+them; the envelope retained all interval maxima. The default overview used 5,603
+JSON bytes and took about 0.65 seconds over SSH in this test, not a latency promise.
+
+An initial 2.5–4.0 V peak-to-peak stimulus assertion failed: recorded edge extrema
+were approximately -0.74 V and +4.00 V. The original failure was retained. Robust
+1st/99th percentile levels were 0.00/3.265 V; the saved waveform was then used for
+the independent data-path checks. Probing may contribute to the excursions; the
+tests do not establish their cause, analog accuracy or electrical compliance.
+
+Three physical capture/decode/restore runs each for UART 9600/8N1, SPI nominal
+10 kHz/mode 0/8-bit/MSB/gap framing, and slow synthetic I2C address 0x50 writes
+passed. A fresh session checked every saved event: 120 UART bytes, 30 SPI bytes,
+and eight I2C transactions (158 events total). Expected data, UART stop bits and
+I2C address/direction/data/ACK/STOP matched. I2C ACKs came from the fixture, not a
+real slave. Boundary fragments were reported separately from complete events.
+
+Private raw captures, instrument identities and administrative test scripts are
+excluded from this repository. Hardware results are maintainer-reported evidence,
+not independent certification. Automated cases remain reproducible in `tests/`;
+physical checks can be repeated using the fixture and documented MCP operations.
+
+The 0.5.1 section below describes its historical pre-deployment validation; its
+corrections are included in the now-deployed 0.6.0 version.
+
 ## Corrective candidate 0.5.1
 
 255 automated tests pass, including 62 new cases for the pre-publication review.

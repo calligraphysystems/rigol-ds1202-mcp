@@ -63,6 +63,15 @@ def test_stdio_end_to_end(mode, tmp_path):
             memory_id = memory.structured_content["artifact_id"]
             assert memory.structured_content["point_count"] == 600001
             assert len(str(memory.structured_content)) < 8000
+            overview = await client.call_tool("advanced_read", memory.structured_content["next_action"]["arguments"])
+            assert not overview.is_error and len(overview.content) == 1
+            assert len(overview.structured_content["envelope"]) == 64
+            picture = await client.call_tool("advanced_read", overview.structured_content["image_action"]["arguments"])
+            assert not picture.is_error and len(picture.content) == 2
+            assert picture.content[1].mime_type == "image/png"
+            assert picture.structured_content["extrema"] == overview.structured_content["extrema"]
+            assert "envelope" not in picture.structured_content
+            assert base64.b64decode(picture.content[1].data).startswith(b"\x89PNG")
             page = await client.call_tool("advanced_read", {"operation": "waveform.samples", "arguments": {
                 "artifact_id": memory_id, "start": 249999, "count": 3}})
             assert not page.is_error and len(page.structured_content["amplitude"]) == 3

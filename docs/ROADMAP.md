@@ -4,7 +4,7 @@
 
 Keep the Rigol, PPK II, SEGGER J-Link, prototype, probes and power wiring at the
 Linux NUC on the workbench. Connect instruments by USB; use Wi-Fi/SSH from the desk.
-Each instrument gets a small reusable MCP server. Sentinel-specific sequences sit
+Each instrument gets a small reusable MCP server. Board-specific sequences sit
 above them rather than hard-coding board knowledge into generic instrument drivers.
 
 The present Rigol server already supports remote operation and persistent completed
@@ -19,7 +19,7 @@ artifacts. It does not yet guarantee that a capture finishes after Wi-Fi/client 
 3. Inventory the exact J-Link model and compatible host software. Add target
    identification, supported log collection and fault inspection. Flash, halt,
    reset, memory writes and erase must remain distinct explicit operations.
-4. Verify both adapters on a suitable known target before claiming Sentinel support.
+4. Verify both adapters on a suitable known target before claiming target-board support.
 5. Add coordinated startup/alert/sleep tasks with common event markers and bounded
    reports. Add firmware instrumentation and separate modem trace handling as needed.
 
@@ -61,4 +61,4 @@ model checks or add broad SCPI execution as a shortcut to unverified functionali
 Before prototype testing, map test points, safe voltage limits, expected rails,
 reset timing, actual bus rates/formats, firmware logging, radio events and sleep
 criteria. TinyPICO validates the present measurement path; it does not qualify
-Sentinel or establish RF/antenna performance.
+the target board or establish RF/antenna performance.

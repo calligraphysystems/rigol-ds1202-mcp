@@ -18,6 +18,15 @@ def number(description, minimum=None, maximum=None):
 
 CHANNEL = {"type": "integer", "enum": [1, 2]}
 BOOL = {"type": "boolean"}
+OVERVIEW_FIELDS = {
+    "artifact_id": {"type": "string"},
+    "start": {"type": "integer", "minimum": 0, "default": 0,
+              "description": "Absolute zero-based starting sample index."},
+    "count": {"type": "integer", "minimum": 1, "maximum": 24000000,
+              "description": "Source samples to summarize; omit for all remaining samples. Clipped at capture end."},
+    "bins": {"type": "integer", "minimum": 1, "maximum": 256, "default": 64,
+             "description": "Maximum output intervals, reduced for short windows. Every source sample contributes."},
+}
 CHANNEL_FIELDS = {
     "enabled": ("DISP", BOOL),
     "probe_ratio": ("PROB", {**number("Match the physical probe; changes displayed scale, not the probe."),
@@ -92,6 +101,16 @@ OPERATIONS = {
             "start": {"type": "integer", "minimum": 0, "default": 0, "description": "Zero-based sample index in the complete capture."},
             "count": {"type": "integer", "minimum": 1, "maximum": 2000, "default": 1000}}, ["artifact_id"]),
         "effects": "No scope access. Returns at most 2000 contiguous calibrated samples; no decimation. A final short page is allowed; next_start is null at the end."},
+    "waveform.overview": {
+        "access": "read", "summary": "Locate narrow spikes in a compact min/max envelope of a saved waveform, then zoom or request exact samples.",
+        "parameters": schema(OVERVIEW_FIELDS, ["artifact_id"]),
+        "effects": "No instrument access. Verifies saved metadata and raw payload, scans every selected sample, returns at most 256 bins (64 default) with exact extrema indices. Returns no raw arrays or image. Retains the first occurrence of tied extrema; does not preserve all transitions or pulse widths.",
+        "requirements": "Saved waveform artifact from version 0.5.1 or later, within the existing eight-capture/seven-day retention. Use bin start and end_exclusive-start to zoom, or follow sample_actions for exact extrema neighborhoods."},
+    "waveform.image": {
+        "access": "read", "summary": "View an optional spike-preserving waveform envelope image from a saved capture or zoomed sample window.",
+        "parameters": schema(OVERVIEW_FIELDS, ["artifact_id"]),
+        "effects": "No instrument access. Same verified min/max calculation as waveform.overview, returned as one 1000x600 native MCP PNG with compact metadata, not base64 text. Host-rendered on demand, not a scope screenshot or resolved trace; no additional persistent image artifact.",
+        "requirements": "Saved waveform artifact from version 0.5.1 or later. Default 64 bins; up to 256. Image availability follows raw capture retention. Exact samples are required to establish pulse widths or transition ordering."},
     "channel.get": {
         "access": "read", "summary": "Read all channel settings, including coupling, probe, scale, offset and deskew.",
         "parameters": schema({"channel": CHANNEL}, ["channel"]), "effects": "None."},
@@ -243,6 +262,10 @@ WORKFLOW_CHECKS = {
 }
 
 def verification(operation):
+    if operation in ("waveform.overview", "waveform.image"):
+        return {"status": "host-side automated verification", "date": "2026-11-13",
+                "scope": "Synthetic saved artifacts, including single-sample spikes and 24M points; calibration, bounded output, integrity rejection and MCP image transport. No new physical acquisition qualification.",
+                "evidence": "tests/test_overview.py"}
     if operation in ('decode.capture','decode.result'):
         return {'model':'DS1202Z-E','firmware':'00.06.03.SP2','date':'2026-11-12',
                 'scope':'Three physical captures each of TinyPICO UART 9600/8N1, SPI nominal 10 kHz/mode0/8-bit/MSB/timeout and synthetic I2C address 0x50 writes. Full known data sequences recovered, with checked core setup/acquisition restoration. Other rates, voltages, probe ratios and I2C read/repeated-start transactions are not hardware-verified. Full-resolution host decoding; not verification of wide-view hardware event tables.',

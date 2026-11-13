@@ -104,5 +104,5 @@ not physical calibration.
 The simulator does not qualify a new scope model, firmware or USB backend. The
 model check must not be relaxed merely because another Rigol has similar SCPI.
 Hardware features beyond the tested format/rate/voltage conditions require new
-evidence, including Sentinel's actual buses. Firmware and silicon behavior remain
+evidence, including the target board's actual buses. Firmware and silicon behavior remain
 outside the server's control.

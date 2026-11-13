@@ -1,5 +1,5 @@
 {
-  "version": "0.5.1",
+  "version": "0.6.0",
   "implemented": {
     "setup.snapshot": {
       "operation": "setup.snapshot",
@@ -316,6 +316,100 @@
         "date": "2026-11-12",
         "scope": "Exact calibrated sample ranges verified across two 250k transfer boundaries and at the final short page of a 24M capture.",
         "evidence": "reports/memory-test-20261112T202152Z.json"
+      },
+      "next_action": "Call advanced_read with this operation and arguments."
+    },
+    "waveform.overview": {
+      "operation": "waveform.overview",
+      "availability": "implemented",
+      "access": "read",
+      "summary": "Locate narrow spikes in a compact min/max envelope of a saved waveform, then zoom or request exact samples.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Absolute zero-based starting sample index."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24000000,
+            "description": "Source samples to summarize; omit for all remaining samples. Clipped at capture end."
+          },
+          "bins": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256,
+            "default": 64,
+            "description": "Maximum output intervals, reduced for short windows. Every source sample contributes."
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "additionalProperties": false,
+        "minProperties": 0
+      },
+      "effects": "No instrument access. Verifies saved metadata and raw payload, scans every selected sample, returns at most 256 bins (64 default) with exact extrema indices. Returns no raw arrays or image. Retains the first occurrence of tied extrema; does not preserve all transitions or pulse widths.",
+      "requirements": "Saved waveform artifact from version 0.5.1 or later, within the existing eight-capture/seven-day retention. Use bin start and end_exclusive-start to zoom, or follow sample_actions for exact extrema neighborhoods.",
+      "verification": {
+        "status": "host-side automated verification",
+        "date": "2026-11-13",
+        "scope": "Synthetic saved artifacts, including single-sample spikes and 24M points; calibration, bounded output, integrity rejection and MCP image transport. No new physical acquisition qualification.",
+        "evidence": "tests/test_overview.py"
+      },
+      "next_action": "Call advanced_read with this operation and arguments."
+    },
+    "waveform.image": {
+      "operation": "waveform.image",
+      "availability": "implemented",
+      "access": "read",
+      "summary": "View an optional spike-preserving waveform envelope image from a saved capture or zoomed sample window.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Absolute zero-based starting sample index."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24000000,
+            "description": "Source samples to summarize; omit for all remaining samples. Clipped at capture end."
+          },
+          "bins": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256,
+            "default": 64,
+            "description": "Maximum output intervals, reduced for short windows. Every source sample contributes."
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "additionalProperties": false,
+        "minProperties": 0
+      },
+      "effects": "No instrument access. Same verified min/max calculation as waveform.overview, returned as one 1000x600 native MCP PNG with compact metadata, not base64 text. Host-rendered on demand, not a scope screenshot or resolved trace; no additional persistent image artifact.",
+      "requirements": "Saved waveform artifact from version 0.5.1 or later. Default 64 bins; up to 256. Image availability follows raw capture retention. Exact samples are required to establish pulse widths or transition ordering.",
+      "verification": {
+        "status": "host-side automated verification",
+        "date": "2026-11-13",
+        "scope": "Synthetic saved artifacts, including single-sample spikes and 24M points; calibration, bounded output, integrity rejection and MCP image transport. No new physical acquisition qualification.",
+        "evidence": "tests/test_overview.py"
       },
       "next_action": "Call advanced_read with this operation and arguments."
     },

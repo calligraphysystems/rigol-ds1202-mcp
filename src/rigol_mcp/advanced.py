@@ -8,6 +8,7 @@ from .memory import WaveformStore, capture_memory, memory_settings, configure_me
 from .workflows import SetupStore, compact_setup, restore_setup, capture_single
 from . import decoders
 from .analysis import spectrum
+from .overview import overview, render_image
 
 
 def read_fields(io, prefix, fields):
@@ -114,6 +115,9 @@ class Advanced:
                 return {"ok": True, "simulated": self.scope.simulated, **memory_settings(io)}
         if operation == "waveform.info":
             return self.waveforms.read(arguments["artifact_id"])
+        if operation in ("waveform.overview", "waveform.image"):
+            result = overview(self.waveforms, **arguments)
+            return render_image(result) if operation == "waveform.image" else result
         if operation == "waveform.samples":
             return self.waveforms.read(arguments["artifact_id"], start=arguments.get("start", 0), count=arguments.get("count", 1000))
         if operation == "artifact.image":

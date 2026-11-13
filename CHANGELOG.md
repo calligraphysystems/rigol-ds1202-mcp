@@ -1,7 +1,21 @@
 # Changelog
 
-Entries below were implemented on 2026-11-12. Hardware coverage is described in
-docs/VALIDATION.md; software-only fixes do not imply new physical qualification.
+Hardware coverage is described in docs/VALIDATION.md; software-only fixes do not
+imply new physical qualification. Versions before 0.6.0 were implemented on 2026-11-12.
+
+## 0.6.0 — 2026-11-13
+Add `waveform.overview`: every source sample contributes to a bounded min/max
+envelope (64 bins by default, maximum 256), retaining absolute extrema indices
+and calibrated values. Capture receipts recommend this overview, with exact
+sample follow-ups and zoomed-window support. Add optional `waveform.image`, a
+native MCP PNG of the same envelope, without embedding raw samples or base64 text
+in default responses. Keep the ten primary tools and existing retention limits.
+
+293 automated tests passed from source, a clean installed wheel and the deployed
+host. Live checks verified a 24M-point record, repeated matching transfers, 34
+saved-data checks and nine known-pattern protocol runs with 158 events checked.
+Tracked scope settings were restored. Observed edge excursions remain a probing/
+signal-quality question, not an analog qualification. No instrument firmware change.
 
 ## 0.5.1
 Preserve restoration outcome and recovery IDs if decoded-result persistence fails.

@@ -111,8 +111,8 @@ class WaveformStore:
                    "summary": {"minimum": min(amplitudes.values()), "maximum": max(amplitudes.values()),
                                "mean": finite(mean), "rms": finite(rms),
                                "unit": context["amplitude_unit"], "method": "All captured BYTE samples; not scope built-in measurements."},
-                   "next_action": {"tool": "advanced_read", "arguments": {"operation": "waveform.samples",
-                                   "arguments": {"artifact_id": identifier, "start": 0, "count": 1000}}}}
+                   "next_action": {"tool": "advanced_read", "arguments": {"operation": "waveform.overview",
+                                   "arguments": {"artifact_id": identifier}}}}
         if context["cleanup_errors"]:
             receipt["next_action"] = "Capture is saved, but restoration failed. Inspect acquisition state before further control."
         receipt = seal(receipt)

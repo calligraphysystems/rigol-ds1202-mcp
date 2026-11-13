@@ -41,6 +41,8 @@ def build_server(scope: Scope, artifacts: Artifacts | None = None) -> MCPServer:
                        "For screenshots, channel setup, trigger settings or other advanced tasks, "
                        "use discover_operations(query=task), then request the chosen operation's schema. "
                        "Use advanced_read for observation and advanced_control for changes. "
+                       "For saved full-memory captures, use waveform.overview before exact sample reads; "
+                       "waveform.image is an optional visual envelope. Never request an entire raw capture as text. "
                        "Settings readback is authoritative; do not assume a write matched the request.")
     read = ToolAnnotations(read_only_hint=True, open_world_hint=False)
     change = ToolAnnotations(read_only_hint=False, destructive_hint=False, open_world_hint=False)
@@ -130,13 +132,14 @@ def build_server(scope: Scope, artifacts: Artifacts | None = None) -> MCPServer:
         """Execute a discovered read operation. Exact parameters come from discover_operations.
 
         Screenshots return a saved artifact receipt; artifact.image explicitly retrieves the image.
+        waveform.overview is a bounded saved-data envelope; waveform.image returns its optional PNG.
         Cannot change acquisition or channel/trigger settings.
         """
         try:
             result = await asyncio.to_thread(advanced.read, operation, arguments or {})
         except Exception as exc:
             return advanced_error(exc, operation)
-        if operation == "artifact.image":
+        if operation in ("artifact.image", "waveform.image"):
             metadata, data = result
             return CallToolResult(structured_content=metadata, content=[
                 TextContent(text=json.dumps(metadata)),

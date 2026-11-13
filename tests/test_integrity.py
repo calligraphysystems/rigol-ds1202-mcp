@@ -47,7 +47,7 @@ def test_altered_setup_refused_before_any_instrument_access(rig, field, value):
     (['scaling', 'y_increment'], .4), (['scaling', 'x_increment'], .01),
     (['amplitude_unit'], 'A'), (['instrument', 'serial'], 'OTHER'),
     (['simulated'], False), (['summary', 'maximum'], 99)])
-@pytest.mark.parametrize('operation', ['waveform.info', 'waveform.samples', 'analysis.fft'])
+@pytest.mark.parametrize('operation', ['waveform.info', 'waveform.samples', 'analysis.fft', 'waveform.overview', 'waveform.image'])
 def test_altered_waveform_refused_for_every_numeric_reader(rig, field, value, operation):
     sim, advanced = rig
     saved = advanced.control('waveform.full_memory', {'channel': 1})

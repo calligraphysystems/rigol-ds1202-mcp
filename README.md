@@ -1,5 +1,7 @@
 # Rigol DS1202Z-E MCP
 
+A Calligraphy Systems project.
+
 Ask an AI for a measurement without making it manage SCPI commands, transfer
 formats or instrument sequencing. This Linux MCP server gives the Rigol DS1202Z-E
 a compact default interface and discoverable advanced operations.
@@ -8,10 +10,9 @@ a compact default interface and discoverable advanced operations.
 AI client -- SSH / Wi-Fi -- Linux instrument host -- USB -- DS1202Z-E
 ```
 
-Version 0.5.1. The 0.5.0 baseline was physically tested on one DS1202Z-E running
-firmware 00.06.03.SP2. Version 0.5.1 adds software-verified corrective changes;
-it has not been deployed to or requalified on hardware. Other models and firmware
-are not qualified. Independent community software; no vendor affiliation.
+Version 0.6.0. Tested and deployed on one DS1202Z-E running firmware 00.06.03.SP2,
+including physical 24M-point waveform and ESP32 protocol checks. Other models
+and firmware are not qualified. Independent software; no Rigol affiliation.
 
 ## What it does
 
@@ -21,6 +22,8 @@ are not qualified. Independent community software; no vendor affiliation.
 - Configure scope serial decoders, or capture/decode supported UART, I2C and SPI
   formats on the host and restore the prior core setup.
 - Analyze saved waveforms with FFT and retrieve bounded samples/events on demand.
+- Locate narrow spikes with compact min/max overviews, optional waveform images,
+  and exact-sample follow-ups. Full raw captures stay on disk, outside model context.
 
 Ten top-level tools stay fixed. Start with `inspect_signal()`; use
 `discover_operations(query="capture decode")` for advanced tasks and request the
@@ -60,8 +63,8 @@ Review wiring and operation prerequisites before changing acquisition/settings.
 - [Roadmap: remote bench, PPK II and J-Link](docs/ROADMAP.md)
 - [Changes](CHANGELOG.md), [contributing](CONTRIBUTING.md), [security](SECURITY.md)
 
-Historical validation: 193 automated tests and 12 live host-decode/restore runs.
-Those counts describe 0.5.0; see the validation guide for the corrective release.
+Version 0.6.0 validation: 293 automated tests, 34 physical saved-waveform checks,
+and nine UART/SPI/I2C capture/decode/restore runs with all 158 events verified.
 This is functional evidence, not calibration or compliance certification. Private
 raw captures and machine configuration are excluded; the validation summary states
 tested conditions and gaps. Source catalog evidence paths refer to those historical
@@ -71,7 +74,7 @@ Completed artifacts persist on the host, subject to retention. Active operations
 are synchronous: continuing through SSH loss and durable background jobs are planned,
 not implemented. Ordinary setting changes do not automatically roll back.
 
-Version 0.5.1 rejects legacy artifacts without metadata checksums: archive important
+Versions 0.5.1 and later reject legacy artifacts without metadata checksums: archive important
 evidence, complete any old-version restoration before upgrading, and take new
 snapshots after checking the actual state. No automatic migration is performed.
 The decode planner now caps legal dual-channel allocations at 600,000 points;
