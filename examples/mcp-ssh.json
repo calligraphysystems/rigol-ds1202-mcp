@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "rigol": {
+      "command": "/usr/bin/ssh",
+      "args": [
+        "-T",
+        "-i",
+        "/ABSOLUTE/PATH/TO/CLIENT_PRIVATE_KEY",
+        "-o",
+        "IdentitiesOnly=yes",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ControlPath=none",
+        "-o",
+        "StrictHostKeyChecking=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "-o",
+        "ServerAliveInterval=15",
+        "-o",
+        "ServerAliveCountMax=3",
+        "USER@INSTRUMENT_HOST",
+        "/ABSOLUTE/PATH/TO/run-scope.sh"
+      ]
+    }
+  }
+}

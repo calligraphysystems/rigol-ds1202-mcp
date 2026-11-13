@@ -1,0 +1,2 @@
+"""Rigol oscilloscope MCP integration."""
+

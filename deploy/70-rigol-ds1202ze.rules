@@ -1,0 +1,4 @@
+# DS1202Z-E USB vendor/product IDs from the Rigol DS1000Z-E programming guide.
+SUBSYSTEM=="usb", ATTR{idVendor}=="1ab1", ATTR{idProduct}=="04ce", GROUP="rigol", MODE="0660"
+# Additional USB product ID observed on tested DS1202Z-E hardware.
+SUBSYSTEM=="usb", ATTR{idVendor}=="1ab1", ATTR{idProduct}=="0517", GROUP="rigol", MODE="0660"
